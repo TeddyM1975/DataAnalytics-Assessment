@@ -330,9 +330,8 @@ Write a query to:
 - Calculate each customer's `account_tenure` in months since signup
 - Count the `total_transactions` the customer has made
 - Estimate `CLV` using the formula:
-    $$
-    \text{CLV} = \left( \frac{\text{Total Transactions}}{\text{Tenure Months}} \right) \times 12 \times \text{Avg. Profit per Transaction}
-    $$
+$$\text{CLV} = \left( \frac{\text{Total Transactions}}{\text{Tenure Months}} \right) \times 12 \times \text{Avg. Profit per Transaction}$$
+
   Where:
   - `profit_per_transaction = 0.1% of transaction value`
 - Sort the result by `estimated_clv` in descending order
