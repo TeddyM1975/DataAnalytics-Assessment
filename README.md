@@ -103,8 +103,109 @@ This result can feed directly into:
 
 ---
 
-## 2. [Next Problem Placeholder]
-*(To be completed...)*
+## 2. Transaction Frequency Analysis
+
+### 🧠 Problem Scenario
+
+The finance team wants to analyze how often customers transact to help segment them into tiers such as **frequent**, **moderate**, or **occasional** users.
+
+---
+
+### 📌 Task
+
+Write a query to:
+
+- Calculate the **average number of successful transactions per customer per month**.
+- Categorize each customer as:
+  - **High Frequency**: ≥10 transactions/month
+  - **Medium Frequency**: 3–9 transactions/month
+  - **Low Frequency**: ≤2 transactions/month
+- Aggregate and return the **count of customers** and the **average monthly transactions** in each segment.
+
+---
+
+### 🛠️ Methodology
+
+#### 1. Aggregation of Customer Transactions
+- Used a CTE `customer_transactions` to **count total successful transactions** per customer from `new_savings_savingsaccount`.
+
+#### 2. Monthly Normalization
+- Created a second CTE `customer_frequency` to **normalize** total transactions over the available period (**105 months** from Aug 2016 to Apr 2025).
+- Used `ROUND(CAST(total_transactions AS DECIMAL) / 105, 2)` to get the monthly average.
+
+#### 3. Frequency Segmentation
+- Used a CASE statement in the `categorized_customers` CTE to classify customers into:
+  - `"High Frequency"`: `avg >= 10`
+  - `"Medium Frequency"`: `avg >= 3 and < 10`
+  - `"Low Frequency"`: `< 3`
+
+#### 4. Final Aggregation
+- Counted how many customers fell into each category.
+- Calculated the **average of their monthly averages** per category using `AVG(avg_transactions_per_month)`.
+
+---
+
+### ✅ Output Example
+
+| frequency_category | customer_count | avg_transactions_per_month |
+|--------------------|----------------|-----------------------------|
+| High Frequency     | 250            | 15.2                        |
+| Medium Frequency   | 1200           | 5.5                         |
+| Low Frequency      | 730            | 1.1                         |
+
+---
+
+### 🗃️ Tables Used
+
+- `users_customuser`:  Customer demographic and contact information.
+- `new_savings_savingsaccount`:  Records of deposit transactions.
+
+---
+
+### ⚙️ Challenges Faced & Solutions
+
+#### 1. Time Range Spanning Multiple Years
+- **Issue**: Some customers had inconsistent activity across years; others had **zero transactions** for certain years.
+- **Solution**: Normalized all customers over a **fixed 105-month window** to ensure fair comparison regardless of when they joined or transacted.
+
+#### 2. Name-Based Duplicates
+- **Issue**: Same names appeared multiple times with different transaction counts.
+- **Solution**: Switched to using `id` instead of `name` as the primary identifier for accuracy.
+
+#### 3. Missing Customer Records
+- **Issue**: Some customers didn’t appear due to no transactions.
+- **Solution**: Used a **LEFT JOIN** from `users_customuser` to ensure inclusion of all customers even if they had 0 transactions.
+
+#### 4. Misleading Assumptions About Monthly Averages
+- **Issue**: Initially considered per-year breakdowns, which could overinflate or underrepresent activity.
+- **Solution**: Used a **uniform 105-month period** as the denominator to ensure consistent classification.
+
+---
+
+### 💡 Why This Approach?
+
+- Ensures **consistent segmentation** by calculating average across entire dataset lifespan (Aug 2016 – Apr 2025).
+- Avoids bias from missing years by treating no-transaction periods as part of the customer’s activity timeline.
+- Uses clear classification logic that can easily plug into dashboards or customer profiles.
+
+---
+
+### 🚀 Optimization Note
+
+- CTEs allow layered logic and clear debugging.
+- Aggregation is done in steps to reduce intermediate complexity.
+- Can scale easily if data range or thresholds change in the future.
+
+---
+
+### 📈 Business Use Case
+
+Results from this query can inform:
+- Customer segmentation for **tiered service plans**
+- Frequency-based rewards or loyalty programs
+- Early detection of **inactive or churning customers**
+
+---
 
 ## 3. [Next Problem Placeholder]
 ...
