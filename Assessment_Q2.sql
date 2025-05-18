@@ -4,7 +4,7 @@ WITH customer_transactions AS (
         u.id AS customer_id,
         u.name,
         COUNT(s.id) AS total_transactions
-    FROM users_customuser u
+    FROM new_users_customer u
         -- Join savings accounts only with 'success' transaction status
     LEFT JOIN new_savings_savingsaccount s 
         ON u.id = s.owner_id AND s.transaction_status = 'success'
