@@ -207,7 +207,110 @@ Results from this query can inform:
 
 ---
 
-## 3. [Next Problem Placeholder]
+## 3. Inactive Accounts with No Inflows for over 1 Year
+
+### 🧠 Problem Scenario
+
+The operations team wants to **identify accounts that have not received any inflow transactions over the past year(365 days)**.
+
+---
+
+### 📌 Task
+
+Write a query to:
+
+- Find all accounts that are either **Savings** or **Investment**
+- Only consider **inflow transactions** (i.e., `confirmed_amount > 0`)
+- Return:
+  - `plan_id`
+  - `owner_id`
+  - Account `type` ("Savings" or "Investment")
+  - `last_transaction_date`
+  - Number of `inactivity_days`
+- Exclude accounts that **have had inflow transactions in the past 365 days**
+- Sort results by `inactivity_days` in descending order
+
+---
+
+### 🛠️ Methodology
+
+#### 1. Account Classification
+Used conditional logic on boolean columns:
+- `is_regular_savings = 1` → **Savings**
+- `is_a_fund = 1` → **Investment**
+
+#### 2. Filtering Inflow Transactions
+- Joined with the `new_savings_savingsaccount` table
+- Included only transactions with `confirmed_amount > 0` to capture **actual inflows**
+
+#### 3. CTE for Activity Summary
+Used a Common Table Expression (`WITH`) to:
+- Summarize `MAX(transaction_date)` as the most recent inflow per account
+- Assign account type
+- Group by account ID and owner
+
+#### 4. Inactivity Calculation
+- Used `DATEDIFF(CURRENT_DATE, COALESCE(last_transaction_date, CURRENT_DATE))` to calculate days of inactivity
+- Accounts with no inflow in **over a year (365 days)** were selected
+
+---
+
+### ✅ Output Example
+
+| plan_id | owner_id | type       | last_transaction_date | inactivity_days |
+|---------|----------|------------|------------------------|-----------------|
+| 1001    | 305      | Savings    | 2023-08-10             | 370             |
+| 1023    | 578      | Investment | 2022-12-25             | 510             |
+
+---
+
+### 🗃️ Tables Used
+
+- `new_plans_plan`: Records of plans created by customers.
+- `new_savings_savingsaccount`: Records of deposit transactions.
+
+---
+
+### ⚙️ Challenges Faced & Solutions
+
+#### 1. Function Compatibility
+- **Issue**: Tried using `DATE_PART()` which is not supported in MySQL.
+- **Solution**: Replaced with `DATEDIFF()` for MySQL compatibility.
+
+#### 2. Ambiguity in Task
+- **Issue**: The scenario specified "no inflow", but the task said "no transactions".
+- **Solution**: Interpreted based on scenario and filtered only on `confirmed_amount > 0` to focus on inflows.
+
+#### 3. Missing `is_active` Field
+- **Issue**: The `is_active` column was in a different table not listed (`new_users_customer`).
+- **Solution**: Ignored that constraint since the task restricts us to only the two listed tables.
+
+---
+
+### 💡 Why This Approach?
+
+- **CTE** helps structure logic in layers and improve readability.
+- **Conditional classification** ensures correct labeling of accounts.
+- **Filtering on inflow** aligns with business requirements to identify dormant value-generating accounts.
+
+---
+
+### 🚀 Optimization Note
+
+The query avoids heavy joins and works efficiently by:
+- Filtering and aggregating within the CTE before final selection
+- Using `LEFT JOIN` to retain accounts even if they have no transactions
+
+---
+
+### 📈 Business Use Case
+
+This result can be used to:
+- Trigger **reactivation campaigns** via SMS, email, or calls
+- Understand **customer churn risk**
+- Feed into user segmentation for **incentive-based re-engagement**
+
+
 ...
 
 ## 4. [Final Problem Placeholder]
