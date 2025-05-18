@@ -3,10 +3,10 @@ u.id AS customer_id,
 name,
 
 -- Calculate account tenure in months from the date the customer joined till today
-TIMESTAMPDIFF(MONTH, date_joined, CURRENT_DATE) AS account_tenure,
+TIMESTAMPDIFF(MONTH, date_joined, CURRENT_DATE) AS tenure_months,
 
 -- Count the total number of transactions for the customer
-COUNT(s.id) AS total_transaction,
+COUNT(s.id) AS total_transactions,
 
 -- Estimate CLV using the formula:
 -- CLV = (total_transactions / tenure_months) * 12 * avg_profit_per_transaction
@@ -26,4 +26,4 @@ JOIN new_savings_savingsaccount s
 GROUP BY u.id
 
 -- Sort customers by the number of transactions, descending
-ORDER BY total_transaction DESC
+ORDER BY total_transactions DESC
