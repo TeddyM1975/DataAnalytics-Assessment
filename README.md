@@ -313,7 +313,110 @@ This result can be used to:
 
 ...
 
-## 4. [Final Problem Placeholder]
-...
+## 4. Customer Lifetime Value (CLV) Estimation
 
+### 🧠 Problem Scenario
 
+The marketing team wants to estimate **Customer Lifetime Value (CLV)** for each customer. The business goal is to understand how valuable each customer is based on how long they've been with the company and their transaction activity.
+
+This simplified CLV model helps prioritize high-value users and inform retention strategies.
+
+---
+
+### 📌 Task
+
+Write a query to:
+
+- Calculate each customer's `account_tenure` in months since signup
+- Count the `total_transactions` the customer has made
+- Estimate `CLV` using the formula:
+    $$
+    \text{CLV} = \left( \frac{\text{Total Transactions}}{\text{Tenure Months}} \right) \times 12 \times \text{Avg. Profit per Transaction}
+    $$
+  Where:
+  - `profit_per_transaction = 0.1% of transaction value`
+- Sort the result by `estimated_clv` in descending order
+
+Return the following columns:
+- `customer_id`
+- `name`
+- `tenure_months`
+- `total_transactions`
+- `estimated_clv`
+
+---
+
+### 🛠️ Methodology
+
+#### 1. Join Customer and Transaction Tables
+- Joined `new_users_customer` and `new_savings_savingsaccount` on `owner_id` to get transactions for each user.
+
+#### 2. Calculate Account Tenure
+- Used `TIMESTAMPDIFF(MONTH, date_joined, CURRENT_DATE)` to get the number of months each customer has had an account.
+
+#### 3. Count Transactions
+- Used `COUNT(s.id)` to count total transactions per customer.
+
+#### 4. Estimate CLV
+- Applied the formula:
+  - Monthly transaction rate: `(total_transactions / tenure)`
+  - Profit per transaction: `AVG(s.confirmed_amount) * 0.001`
+  - Annualize: Multiply by 12
+  - Rounded to 2 decimal places using `ROUND(...)`
+
+---
+
+### ✅ Output Example
+
+| customer_id | name      | tenure_months | total_transactions | estimated_clv |
+|-------------|-----------|----------------|---------------------|----------------|
+| 1001        | John Doe  | 24             | 120                 | 600.00         |
+
+---
+
+### 🗃️ Tables Used
+
+- `new_users_customer`: customer demographic and contact information.
+- `new_savings_savingsaccount`: records of deposit transactions.
+
+---
+
+### ⚙️ Challenges Faced & Solutions
+
+#### 1. SQL Function Misuse
+- **Issue**: Used `DATEDIFF(MONTH, ...)`, which is invalid in MySQL.
+- **Solution**: Replaced with `TIMESTAMPDIFF(MONTH, ...)` for compatibility.
+
+#### 2. Aggregation Accuracy
+- **Issue**: `AVG(confirmed_amount)` must be grouped correctly to avoid skewed results.
+- **Solution**: Ensured aggregation was done per customer before computing `CLV`.
+
+---
+
+### 💡 Why This Approach?
+
+- **Direct calculation** allows a simplified CLV model without external tools.
+- **MySQL-native functions** like `TIMESTAMPDIFF` ensure compatibility.
+- **Aggregation with GROUP BY** provides concise and scalable metrics.
+
+---
+
+### 🚀 Optimization Note
+
+- **Indexes** on `owner_id` and `date_joined` can significantly improve join and filter performance.
+- Filtering out extremely short tenure (<1 month) might give more reliable CLV values.
+
+---
+
+### 📈 Business Use Case
+
+This CLV estimate helps the business:
+- **Identify high-value customers** for loyalty campaigns
+- **Segment users** for personalized marketing
+- **Forecast revenue** based on customer cohorts
+
+---
+
+# ✅ Final Note
+This solution was developed as part of a Data Analyst assessment for Cowrywise. It demonstrates my ability to interpret business scenarios, translate them into structured SQL queries, and communicate insights clearly using data-driven logic. All queries were written with performance, readability, and business alignment in mind.
+> Thank you for the opportunity to showcase my analytical skills.
